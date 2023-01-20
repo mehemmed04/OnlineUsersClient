@@ -1,5 +1,6 @@
 ﻿using OnlineUsersClient.Commands;
 using OnlineUsersClient.Helper;
+using OnlineUsersClient.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +32,7 @@ namespace OnlineUsersClient.ViewModels
         public string Name
         {
             get { return name; }
-            set { name = value; }
+            set { name = value; OnPropertyChanged(); }
         }
 
         public AppViewModel()
@@ -57,13 +58,18 @@ namespace OnlineUsersClient.ViewModels
                     {
                         var writer = Task.Run(() =>
                         {
-                            var text = Name;
-                            var stream = client.GetStream();
-                            var bw = new BinaryWriter(stream);
-                            bw.Write(text);
-
+                            Message msg = new Message
+                            {
+                                Client = client,
+                                 Owner =Name,
+                                  Content = "Connected"
+                            };
+                            var messaage = JsonHelper.GetJsonStringOfClass(msg);
+                            byte[] data = Encoding.ASCII.GetBytes(messaage);
+                            NetworkStream stream = client.GetStream();
+                            stream.Write(data, 0, data.Length);
                         });
-
+                        MessageBox.Show("Connected");
                         //var reader = Task.Run(() =>
                         //{
                         //    while (true)
@@ -96,11 +102,17 @@ namespace OnlineUsersClient.ViewModels
                     {
                         var writer = Task.Run(() =>
                         {
-                            var text = Message;
-                            var stream = client.GetStream();
-                            var bw = new BinaryWriter(stream);
-                            bw.Write(text);
-
+                            Message msg = new Message
+                            {
+                                Client = client,
+                                Owner = Name,
+                                Content = Message
+                            };
+                            var messaage = JsonHelper.GetJsonStringOfClass(msg);
+                            byte[] data = Encoding.ASCII.GetBytes(messaage);
+                            NetworkStream stream = client.GetStream();
+                            stream.Write(data, 0, data.Length);
+                            MessageBox.Show("Sended");
                         });
 
                         //var reader = Task.Run(() =>
